@@ -5,7 +5,6 @@ import re
 input_folder = Path("input_files")
 output_folder = Path("output")
 output_folder.mkdir(parents=True, exist_ok=True)
-
 csv_files = sorted(input_folder.glob("*.csv"))
 
 def clean_col(col):
