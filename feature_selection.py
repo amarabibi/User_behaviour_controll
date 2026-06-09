@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import re
+from sklearn.model_selection import GroupShuffleSplit # Added for grouping split
 
 INPUT_FOLDER = Path("input_files")
 OUTPUT_FOLDER = Path("output")
@@ -191,6 +192,40 @@ def main():
 
     cleaned_df = pd.concat(processed_parts, ignore_index=True, sort=False)
     alerts_df = pd.concat(alerts_parts, ignore_index=True, sort=False)
+
+    # --- MODIFICATION START: SPLIT DATA & DROP LEAKY FEATURES ---
+    
+    # 1. Fill missing student IDs with a placeholder so splitting doesn't crash on NaNs
+    if "student_id" in cleaned_df.columns:
+        cleaned_df["student_id"] = cleaned_df["student_id"].fillna("unknown_user")
+        
+        # 2. Setup the GroupSplitter based on user groups
+        gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+        train_idx, test_idx = next(gss.split(cleaned_df, groups=cleaned_df["student_id"]))
+        
+        train_df = cleaned_df.iloc[train_idx].copy()
+        test_df = cleaned_df.iloc[test_idx].copy()
+        
+        # 3. Identify leaky tracking features and text metrics to drop for ML training
+        columns_to_drop = [
+            'student_id', 'user_id', 'userid', 'user_name', 'id', 'student',
+            'phone_number', 'email', 'session_id', 'source_file', 'subgroup', 
+            'casestudy', 'timestamp', 'moment', 'login_time', 'system_action'
+        ]
+        
+        # 4. Generate ML-ready versions (keeping targets/labels intact but dropping leaks)
+        train_ml_ready = train_df.drop(columns=columns_to_drop, errors='ignore')
+        test_ml_ready = test_df.drop(columns=columns_to_drop, errors='ignore')
+        
+        # 5. Export train and test groups to disk
+        train_ml_ready.to_csv(OUTPUT_FOLDER / "train_ml_ready.csv", index=False)
+        test_ml_ready.to_csv(OUTPUT_FOLDER / "test_ml_ready.csv", index=False)
+        print(f"Saved: {OUTPUT_FOLDER / 'train_ml_ready.csv'} (Rows: {len(train_ml_ready)})")
+        print(f"Saved: {OUTPUT_FOLDER / 'test_ml_ready.csv'} (Rows: {len(test_ml_ready)})")
+    else:
+        print("Warning: 'student_id' column missing. Unable to perform GroupSplit.")
+
+    # --- MODIFICATION END ---
 
     cleaned_path = OUTPUT_FOLDER / "behavior_monitoring_output.csv"
     alerts_path = OUTPUT_FOLDER / "behavior_alerts_only.csv"
