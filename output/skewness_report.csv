@@ -1,0 +1,9 @@
+source_file,column,skew_before,skew_after,method
+AI_IPE_IoT_BigData_Dataset,speech_frequency,1.0815503357869565,0.11439957333223551,log1p
+data,education,1.2898430846458244,1.2898430846458244,log1p
+FullDataset_CombinedSimple,age,2.7414957849212143,1.6723808032954297,log1p
+FullDataset_CombinedSimple,co2,1.8336443990146238,0.6308391135948006,log1p
+FullDataset_CombinedSimple,af,-1.2940058323756485,-3.0688830948756123,log1p
+sstudent_engagement_dataset,student_id_length,-1.1489454011146458,-1.5093605890500552,log1p
+StudentPerformanceFactors,exam_score,1.6448082853982677,0.9882929567319091,log1p
+user_behavior_dataset,student_id_length,-2.52374258917369,-2.932046269498937,log1p
