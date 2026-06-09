@@ -11,8 +11,7 @@ from sklearn.metrics import classification_report, accuracy_score
 
 OUTPUT_FOLDER = Path("output")
 
-# FIX 1: Named top-level function so joblib can serialize it without a pickle crash
-
+# Named top-level function so joblib can serialize it without a pickle crash
 def force_string_conversion(x):
     return x.astype(str)
 
@@ -45,11 +44,13 @@ def main():
     X_test_raw = test_df.drop(columns=[target_col])
     y_test = test_df[target_col]
 
-    # FIX 2: Added target leakage columns ('trigger_alert', 'high_stress_hr', 'behavior_length') 
-    # to the drop list to fix the artificial 100% accuracy problem.
+    # FIX: Expanded leaky features list to remove target-overlapping device logs
+    # and safely drop 'app_usage_time_z' without any trailing underscore issues.
     leaky_features = [
         'trigger_alert', 'high_stress_hr', 'behavior_length', 
-        'stress_level_z', 'heart_rate_z', 'app_usage_time_z'
+        'stress_level_z', 'heart_rate_z', 'app_usage_time_z',
+        'data_usage_mbday', 'app_usage_time_minday', 'app_usage_time', 
+        'number_of_apps_installed', 'battery_drain_mahday', 'screen_on_time_hoursday'
     ]
     X_train_raw = X_train_raw.drop(columns=leaky_features, errors='ignore')
     X_test_raw = X_test_raw.drop(columns=leaky_features, errors='ignore')
@@ -83,7 +84,6 @@ def main():
 
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing_value')),
-        # FIX 1: Passing the named function instead of the lambda expression
         ('force_string', FunctionTransformer(force_string_conversion, validate=False)),
         ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
     ])
@@ -137,7 +137,14 @@ def main():
     print("\n--- Saving Production Assets Complete ---")
     print(f"Saved inference pipeline to: {pipeline_save_path}")
     print(f"Saved target label mappings to: {labels_save_path}")
+    
+    # Extract and save new feature importance metrics
+    final_feature_names = numeric_features + preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out(categorical_features).tolist()
+    feature_importance_df = pd.DataFrame({
+        'Feature': final_feature_names,
+        'Importance': model.feature_importances_
+    }).sort_values(by='Importance', ascending=False)
+    feature_importance_df.to_csv(OUTPUT_FOLDER / "feature_importances.csv", index=False)
 
 if __name__ == "__main__":
     main()
-

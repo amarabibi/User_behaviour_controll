@@ -1,22 +1,12 @@
 Feature,Importance
-data_usage_mbday,0.16509745692963004
-app_usage_time_minday,0.16453275921719274
-app_usage_time,0.1571565848722043
-number_of_apps_installed,0.14660445991642285
-app_usage_time_z,0.13217903426807406
-battery_drain_mahday,0.12943861126410477
-screen_on_time_hoursday,0.09933031585626612
-age,0.0017670524140762365
-device_model_Samsung Galaxy S21,0.0010199040686820456
-device_model_OnePlus 9,0.0006594856321338459
-gender_Male,0.0006366067974512681
-student_id_length,0.0005912861925270769
-gender_Female,0.00046837066859959405
-device_model_Xiaomi Mi 11,0.00026464678095260044
-operating_system_iOS,0.00016447094775651617
-device_model_iPhone 12,4.228221042397768e-05
-operating_system_Android,2.833679701293693e-05
-device_model_Google Pixel 5,1.833516648904182e-05
-behavior_length,0.0
-trigger_alert_False,0.0
-high_stress_hr_False,0.0
+age,0.8268969907641176
+student_id_length,0.05995946874642666
+device_model_Samsung Galaxy S21,0.01838190532070651
+device_model_Xiaomi Mi 11,0.01728081571778228
+gender_Male,0.015567435835437024
+device_model_Google Pixel 5,0.015436532567302185
+device_model_OnePlus 9,0.015021437139111589
+gender_Female,0.014090631355993937
+operating_system_Android,0.006225109332390351
+device_model_iPhone 12,0.0056570796424621015
+operating_system_iOS,0.005482593578269729
